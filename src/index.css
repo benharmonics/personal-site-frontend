@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  height: 100%;
+  overflow-y: hidden;
+  background: linear-gradient(to bottom right, #233142, #455d7a) no-repeat;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.navbar-maximized { width: clamp(120px, 160px, 300px) }
+.navbar-minimized { width: clamp(60px, 70px, 80px) }
+
+#navbar-button {
+  background: linear-gradient(to top left, #233142, #455d7a) no-repeat;
+}
+
+#navbar-button.navbar-maximize-button { left: clamp(110px, 150px, 290px) }
+#navbar-button.navbar-minimize-button { left: clamp(50px, 60px, 70px) }
+
+#navbar-button:hover {
+  color: #f95959;
+}
+
+.navbar-item {
+  border-bottom: 1px dotted #233142;
+}
+
+.active {
+  background-color: #f95959;
+}
