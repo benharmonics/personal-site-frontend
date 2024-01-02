@@ -48,12 +48,17 @@ export default function Chat() {
   }
 
   function submitOnEnter(event) {
+    event.preventDefault(); // Prevents the addition of a new line in the text field
     if (event.key === 'Enter' && !event.shiftKey) {
+      if (newComment.current.trim() === '') {
+        newComment.current = '';
+        event.target.value = '';
+        return;
+      }
       sendMessage(`Anonymous: ${newComment.current}`);
       newComment.current = '';
       event.target.value = '';
     }
-    event.preventDefault(); // Prevents the addition of a new line in the text field
   }
 
   return (
@@ -122,8 +127,9 @@ export default function Chat() {
 
 const MessageHistory = ({ history, connectionStatus }) =>
   history.length > 0 && (
-    <div className="grid justify-center px-1">
+    <div className="grid justify-center px-1 min-h-[50px] max-h-[350px] sm:min-h-[400px] sm:max-h-[550px] lg:min-h-[500px] lg:max-h-[600px] overflow-y-scroll">
       <div className="p-3 rounded bg-gainsboro text-black">
+        {/*Show connection status only if it's unstable*/}
         {connectionStatus !== 'Open' && (
           <div className="flex justify-end">
             <SignalIcon className="w-4 h-4" />
@@ -139,10 +145,31 @@ const MessageHistory = ({ history, connectionStatus }) =>
                 idx % 2 === 0 ? 'bg-eggshell' : ''
               }`}
             >
-              {!!msg && msg.data}
+              <MessageData msg={msg} />
             </li>
           ))}
         </ul>
       </div>
     </div>
   );
+
+const MessageData = ({ msg }) => {
+  if (!msg || !msg.data) return null;
+  const splitMessage = msg.data.split(' ');
+  // This is a defined format coming in from the backend with a date in ISO format, e.g.
+  // Anonymous: this is an example message 2024-01-01T00:00:00.000Z
+  const author = splitMessage[0];
+  const comment = splitMessage.slice(1, -1).join(' ');
+  const date = new Date(splitMessage.at(-1)).toLocaleTimeString();
+  return (
+    <div className="flex justify-between">
+      <div className="flex overflow-x-hidden text-sm">
+        <div className="font-semibold pr-1">{author}</div>
+        <div>{comment}</div>
+      </div>
+      <div className="opacity-0 text-xs md:pl-1 md:opacity-70 md:text-xs md:min-w-[75px]">
+        {date}
+      </div>
+    </div>
+  );
+};
