@@ -37,8 +37,29 @@ function SnakeGame({ width }) {
   const vy = useRef(0);
   const apple = useRef(Math.floor(Math.random() * widthSquared));
   const growing = useRef(false);
+  const gameOver = useRef(false);
   const rows = [...Array(width).keys()];
   const cols = rows;
+
+  function resetGame() {
+    setHead(3 + width);
+    tail.current = [width + 2, width + 1];
+    vx.current = 1;
+    vy.current = 0;
+    gameOver.current = false;
+  }
+
+  let snake = useMemo(() => [...tail.current, head], [tail, head]);
+
+  function gridPieceColor(row, col) {
+    const loc = col + width * row;
+    if (snake.includes(loc)) {
+      return 'bg-bittersweet';
+    } else if (loc === apple.current) {
+      return 'bg-midnight';
+    }
+    return 'bg-gainsboro';
+  }
 
   window.addEventListener('keydown', event => {
     switch (event.key) {
@@ -78,18 +99,6 @@ function SnakeGame({ width }) {
     }
   });
 
-  let snake = useMemo(() => [...tail.current, head], [tail, head]);
-
-  function gridPieceColor(row, col) {
-    const loc = col + width * row;
-    if (snake.includes(loc)) {
-      return 'bg-bittersweet';
-    } else if (loc === apple.current) {
-      return 'bg-midnight';
-    }
-    return 'bg-gainsboro';
-  }
-
   const getApple = useCallback(() => {
     let nextLocation = Math.floor(Math.random() * widthSquared);
     while (snake.includes(nextLocation)) {
@@ -114,8 +123,8 @@ function SnakeGame({ width }) {
       const newHead =
         (((curr + move) % widthSquared) + widthSquared) % widthSquared;
       if (tail.current.includes(newHead)) {
-        console.log('Game over!');
         setRunning(false);
+        gameOver.current = true;
         return newHead;
       }
       if (newHead === apple.current) {
@@ -137,16 +146,16 @@ function SnakeGame({ width }) {
       <div className="flex justify-center">
         <button
           className="text-xs sm:text-sm md:text-md w-16 font-semibold px-2 py-1 rounded bg-bittersweet text-white hover:opacity-80"
-          onClick={() => setRunning(prev => !prev)}
+          onClick={() => !gameOver.current && setRunning(prev => !prev)}
         >
           {running ? 'Pause' : 'Play'}
         </button>
-        <div className="px-2" />
+        <div className="px-4" />
         <button
-          className="text-xs sm:text-sm md:text-md w-16 font-semibold px-2 py-1 rounded bg-bittersweet text-white hover:opacity-80"
-          onClick={advance}
+          className="text-xs sm:text-sm md:text-md w-16 font-semibold px-2 py-1 rounded bg-gainsboro text-midnight hover:opacity-80"
+          onClick={resetGame}
         >
-          TEST
+          Reset
         </button>
       </div>
       {/* Board */}
@@ -161,6 +170,18 @@ function SnakeGame({ width }) {
           ))}
         </div>
       </div>
+      <GameOver gameOver={gameOver.current} />
     </>
   );
+}
+
+/**
+ * @param {bool} gameOver
+ * @returns {JSX.Element}
+ */
+function GameOver({ gameOver }) {
+  if (!gameOver) {
+    return null;
+  }
+  return <div className="text-gainsboro font-semibold text-lg">Game Over!</div>;
 }
